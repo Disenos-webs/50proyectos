@@ -1,0 +1,115 @@
+body {
+    max-height: 100vh;
+    overflow-y: auto;
+}
+main {
+    width: 60%;
+    margin: 1rem auto;
+}
+.user-form input {
+    padding: 1rem;
+    border-radius: .3rem;
+    background: var(--dark-gray);
+    color: var(--white);
+    font-size: 1.125rem;
+    width: 100%;
+}
+#github-perfil {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    grid-template-rows: 1fr auto;
+    grid-template-areas: "avatar info" "response response";
+    gap: .5rem;
+    padding: 1rem;
+    margin: 1rem;
+    background: rgba(var(--light-gray-rgb), .12);
+}
+#github-perfil .avatar {
+    grid-area: avatar;
+    width: 140px;
+    height: 140px;
+    border-radius: .3rem;
+    background-color: #CCC;
+    overflow: hidden;
+}
+#github-perfil .avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+#github-perfil .data-info {
+    grid-area: info;
+    display: grid;
+    place-items: center start;
+    position: relative;
+}
+#github-perfil .data-info p small {
+    display: block;
+}
+#github-perfil .data-info .hireable {
+    position: absolute;
+    background-color: var(--grapefruit);
+    color: var(--white);
+    font-size: 0.8rem;
+    display: inline-block;
+    height: 1.25rem;
+    line-height: 1.25rem;
+    padding-inline: .5rem;
+    top: 1rem;
+    right: 1rem;
+}
+.data {
+    display: block;
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: .785rem;
+    font-size: 0.8rem;
+}
+.data > div {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding-right: .785rem;
+    overflow: hidden;
+    border-radius: 10em;
+    background: rgba(var(--bittersweet-rgb), .1);
+    color: var(--bittersweet);
+    cursor: pointer;
+}
+.data > div strong {
+    --s: 1.785rem;
+    border-radius: 10em;
+    background: rgba(var(--bittersweet-rgb), .2);
+    display: block;
+    width: var(--s);
+    height: var(--s);
+    line-height: var(--s);
+    text-align: center;
+}
+.data > div * {
+    pointer-events: none;
+}
+.data-response {
+    grid-area: response;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: .5rem;
+}
+.data-response a {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    text-decoration: none;
+    padding-right: .5rem;
+    gap: .25rem;
+    border-radius: 10em;
+    overflow: hidden;
+    border: 1px solid rgba(var(--dark-gray-rgb), .8);
+}
+.data-response a img {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 10em;
+}

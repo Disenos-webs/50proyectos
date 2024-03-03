@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap">
+<link rel="stylesheet" href="../../base/base.css">
+<link rel="stylesheet" href="./style.css">
+<title>Movie App</title>
+</head>
+<body>
+
+	<header>
+	 	<h1>Movie App</h1>
+		<form id="form">
+			<input type="search" id="search" class="search" placeholder="Search a movie">
+		</form>
+	</header>
+
+	<main>
+	 	<div id="movies">
+	 		<div class="cargando">Cargando...</div>
+	 	</div>
+	 	
+	 	<template id="templateMovie">
+	 		<div class="movie">
+	 			<figure>
+            	<img src="" data-src="" loading="lazy" class="poster" alt="">
+            </figure>
+            <span class="vote_average"></span>
+            <div class="movie-info">
+	            <h3></h3>
+	            <div class="overview"><p></p></div>
+	         </div>
+        </div>
+	 	</template>
+	</main>
+	<div id="paginacion"></div>
+	
+	<script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload"></script>
+	<script src="./script.js"></script>
+
+</body>
+</html>

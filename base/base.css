@@ -1,0 +1,60 @@
+:root {
+	--bittersweet: #e9563f;
+	--bittersweet-rgb: 233, 86, 63;
+	--grapefruit: #da4453;
+	--grapefruit-rgb: 218, 68, 83;
+	--mint: #37bc9a;
+	--mint-rgb: 55, 188, 154;
+	--dark-gray: #424953;
+	--dark-gray-rgb: 66, 73, 83;
+	--slate-gray: #708090;
+	--slate-gray-rgb: 112, 128, 144;
+	--light-gray: #e5eaef;
+	--light-gray-rgb: 229, 234, 239;
+	--white: #FFFFFF;
+	--white-rgb: 255, 255, 255;
+	--family: 'Poppins', sans-serif;
+	--body-bg: var(--light-gray);
+	--body-color: var(--dark-gray);
+}
+[data-theme=dark] {
+	color-scheme: dark;
+	--bittersweet: #fa6f52;
+	--bittersweet-rgb: 250, 111, 82;
+	--grapefruit: #ed5564;
+	--grapefruit-rgb: 237, 85, 100;
+	--mint: #49ceae;
+	--mint-rgb: 73, 206, 174;
+	--dark-gray: #444D55;
+	--dark-gray-rgb: 68, 77, 85;
+	--slate-gray: #2F4F4F;
+	--slate-gray-rgb: 47, 79, 79;
+	--light-gray: #f6f7fb;
+	--light-gray-rgb: 246, 247, 251;
+	--white: #FFFFFF;
+	--white-rgb: 255, 255, 255;
+	--body-bg: #434b55;
+	--body-color: #f6f7fb;
+}
+*, *:after, *::before {
+	padding: 0;
+	margin: 0;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	border: transparent;
+	outline: transparent;
+	background: transparent;
+	color: inherit;
+	box-sizing: border-box;
+}
+@media (prefers-reduced-motion: no-preference) {
+	:root {
+		scroll-behavior: smooth;
+	}
+}
+body {
+	font: normal normal 300 1rem/1.5rem var(--family);
+	color: var(--body-color);
+	background-color: var(--body-bg);
+}
