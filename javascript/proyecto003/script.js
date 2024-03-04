@@ -1,35 +1,36 @@
 const github = {
 	savename: '',
 	api: 'https://api.github.com/users/',
-	getuser: async username => {
-		github.savename = username;
+	getuser: async function(username) {
+		this.savename = username;
 	   try {
-	   	const data = github.api + username;
+	   	const data = this.api + username;
 	      const response = await peticion.getResponse(data)
-	     	github.createUserCard(response)
+	     	this.createUserCard(response)
 
 	   } catch (error) {
-	   	console.log(error)
 	      if(error.response.status == 404) {
-	      	document.getElementById('githubuser').innerHTML = "No profile with this username"
+	      	document.getElementById('githubuser').innerHTML = "No hay perfil con este nombre de usuario"
 	      }
 	   }
 	},
-	formatDate: date => {
+	formatDate: function(date) {
 		const fecha = new Date(date);
 		const año = fecha.getFullYear();
 		const mes = ('0' + (fecha.getMonth() + 1)).slice(-2);
 		const día = ('0' + fecha.getDate()).slice(-2);
-
 		return `${día}.${mes}.${año}`;
 	},
-	createUserCard: response => {
+	createUserCard: function(response) {
 		const { avatar_url, bio, created_at, followers, following,  hireable, location, login, name, public_gists, public_repos } = response;
 
-		console.log(response)
+		if(response.message) {
+			document.getElementById('githubuser').innerHTML = `<span>${response.message}</span>`;
+			return;
+		}
 
 		let Username = name || login;
-		let createAt = github.formatDate(created_at);
+		let createAt = this.formatDate(created_at);
 		let hire = "<span class=\"hireable\">Contratable</span>" || ''
 
 		const template = `<div id="github-perfil">
@@ -40,42 +41,63 @@ const github = {
 				<h2>${Username}</h2>
 				<p>${bio} <small>Registrado el ${createAt} - En ${location}</small> </p>
 				<div class="data">
-					<div id="followers"><strong>${followers}</strong> <span>Seguidores</span></div>
-					<div id="following"><strong>${following}</strong> <span>Siguiendo</span></div>
-					<div id="repos"><strong>${public_repos}</strong> <span>Repos</span></div>
-					<div id="gists"><strong>${public_gists}</strong> <span>Gits</span></div>
+					<div class="data--badge" id="followers"><strong>${followers}</strong> <span>Seguidores</span></div>
+					<div class="data--badge" id="following"><strong>${following}</strong> <span>Siguiendo</span></div>
+					<div class="data--badge" id="repos"><strong>${public_repos}</strong> <span>Repos</span></div>
+					<div class="data--badge" id="gists"><strong>${public_gists}</strong> <span>Gits</span></div>
 				</div>
 			</div>
-			<div class="data-response"></div>
+			<div class="data__response"></div>
 		</div>`
 		document.getElementById('githubuser').innerHTML = template;
 		const events = ['followers', 'following', 'repos', 'gists'];
 		events.map( event => {
 			const element = document.getElementById(event);
-			element.addEventListener('click', () => github.event(event))
-		})
-		
+			element.addEventListener('click', () => this.loaderInfo(event))
+		})	
 	},
-	event: async event => {
-		const data = github.api + github.savename + '/' + event;
+	loaderInfo: async function(event) {
+		const data = this.api + this.savename + '/' + event;
 	   const response = await peticion.getResponse(data)
-	   console.log(response)
-	   document.querySelector('.data-response').innerHTML = '';
-	   if(event == 'followers' || event == 'following') {
-	   	response.map( user => {
-	   		const template = `<a href="#" target="_blank"><img src="${user.avatar_url}" alt="${user.login}"> <span>${user.login}</span></a>`;
-	   		document.querySelector('.data-response').innerHTML += template;
-	   	})
-	   } else if(event == 'repos') {
-	   	response.map( data => {
-	   		const template = `<a href="${data.html_url}" target="_blank"><span>${data.name}</span></a>`;
-	   		document.querySelector('.data-response').innerHTML += template;
-	   	})
-	   }
+	   document.querySelector('.data__response').innerHTML = '';	
+		response.map( data => {
+			const { html_url } = data;
+			const createA = document.createElement('a')
+			createA.href = html_url;
+         createA.target = '_blank';
+
+			if(event == 'followers' || event == 'following') {
+				const { avatar_url, login } = data;
+				const createImg = document.createElement('img')
+				createImg.src = avatar_url;
+				createImg.alt = login;
+            createA.innerText = login;
+				createA.appendChild(createImg)
+				document.querySelector('.data__response').classList.remove('gist')
+			} else if(event == 'repos') {
+	   		const { name } = data;
+            createA.innerText = name;
+				document.querySelector('.data__response').classList.remove('gist')
+	   	} else {
+	   		const { files, description } = data;
+            createA.innerText = Object.keys(files)[0];
+				const createSpan = document.createElement('span')
+            createSpan.innerText = description;
+				createA.appendChild(createSpan)
+				document.querySelector('.data__response').classList.add('gist')
+	   	}
+		   document.querySelector('.data__response').appendChild(createA);
+		})
 	}
 }
 
-document.getElementById('search').addEventListener('keyup', function(e) {
+let tiempo;
+document.getElementById('search').addEventListener('keyup', function() {
+	clearTimeout(tiempo);
 	const user = this.value;
-	github.getuser(user)
+	// Para evitar saturar de consulta la API de github
+	tiempo = setTimeout(function() {
+      github.getuser(user)
+    }, 500);
+
 })

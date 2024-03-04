@@ -30,4 +30,3 @@ Todos los proyectos están basados en [50projects50days](https://github.com/brad
  	- Ver repos
  	- Ver gits
  	- Ver información del usuario
-> continua en construcción
