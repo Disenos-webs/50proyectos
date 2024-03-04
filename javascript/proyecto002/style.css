@@ -1,3 +1,12 @@
+.cargando {
+	text-align: center;
+	padding-block: 1rem;
+	font-size: 3rem;
+	font-weight: 600;
+	display: grid;
+	place-items: center;
+	height: 50vh;
+}
 header {
 	background: rgba(var(--slate-gray-rgb), 1);
 	border-bottom: .25rem solid rgba(var(--dark-gray-rgb), .5);
@@ -17,27 +26,29 @@ form .search {
 	box-shadow: 0 .125rem .325rem rgba(var(--dark-gray-rgb), .5);
 }
 #movies {
+	width: 90%;
+	margin: 1rem auto;
+}
+#movies.grid {
 	--gap: 1rem;
 	--columns: 4;
 	--calc: calc(calc(100% - var(--gap) * 2) / var(--columns));
-	width: 90%;
-	margin: 1rem auto;
 	display: grid;
 	grid-template-columns: repeat(var(--columns), var(--calc));
 	gap: var(--gap);
 }
 @media(width <= 992px) {
-	#movies {
+	#movies.grid {
 		--columns: 3;
 	}
 }
 @media(width <= 768px) {
-	#movies {
+	#movies.grid {
 		--columns: 2;
 	}
 }
 @media(width <= 620px) {
-	#movies {
+	#movies.grid {
 		--columns: 1;
 	}
 }
@@ -127,6 +138,26 @@ form .search {
 }
 .movie:hover .movie-info p {
 	display: block;
+}
+.filtros {
+	padding: .875rem;
+}
+.filtros .filtro {
+	display: inline-block;
+	background-color: rgba(var(--grapefruit-rgb), .15);
+	color: rgba(var(--grapefruit-rgb), 1);
+	padding: 0.125rem 0.75rem;
+	border-radius: .3rem;
+	margin-right: .5rem;
+	height: 1.875rem;
+	line-height: 1.875rem;
+	text-transform: uppercase;
+	font-weight: 600;
+	cursor: pointer;
+}
+.filtros .filtro.active {
+	color: var(--white);
+	background-color: rgba(var(--grapefruit-rgb), 1);
 }
 #paginacion {
    margin-block: 1rem;

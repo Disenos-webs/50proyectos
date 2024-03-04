@@ -19,7 +19,7 @@ Todos los proyectos están basados en [50projects50days](https://github.com/brad
 #### <a name="jsproyecto2"></a>Proyecto 2: **App de películas & series** `javascript/proyecto002`
  - Pagina donde salen peliculas/series, sus reseñas y podes buscar con un search la película/serie que pongas.
  	- Tiene paginador
- 	- Filtros (proximamente)
+ 	- Filtros (por ahora entre películas y series)
 	- Buscador (sin funcionalidad, por el momento)
  	- API TheMovieDB
 

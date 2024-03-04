@@ -13,130 +13,172 @@ let APIPARAMSTMDB = [
 	'api_key=' + APIKEYTMDB
 ].join('&');
 
-/*
-movie/{ID_MOVIE}/images
-search/movie
-movie/{ID_MOVIE}
-discover/movie
-*/
+// PARA CREAR Y/O OBTENER PARAMETRO DE LA URL
+const GetParams = {
+	URLSearchParams: () => new URLSearchParams(window.location.search),
+	URLEditParams: editparam => {
+		const nuevaURL = `${window.location.origin}${window.location.pathname}${editparam}`
+    	history.pushState(null, null, nuevaURL);
+	},
+	URLSearch: param => {
+		const searchParams = GetParams.URLSearchParams();
+   	const pageActual = searchParams.get('page');
+   	const newObject = {
+   		pagina: (pageActual ? parseInt(pageActual) : 1),
+   		cat: searchParams.get('cat') || 'movie'
+   	}
+   	return newObject[param];
+	}
+}
+
+// CREAMOS EL PAGINADOR
+const Paginador = {
+	limite: 5,
+	contenedor: document.getElementById('paginacion'),
+	limpiar: function() {
+		this.contenedor.innerHTML = '';
+	},
+	agregar: function(html) {
+		this.contenedor.appendChild(html);
+	},
+	crearHTML: function(tipo) {
+		return document.createElement(tipo);
+	},
+	boton_pagina: function(page, numberPage) {
+		const cat = GetParams.URLSearch('cat');
+		const boton = this.crearHTML(page === '...' ? 'span' : 'button');
+		boton.textContent = page === '...' ? page : numberPage;
+		if(page !== '...') {
+			boton.addEventListener('click', () => APPMovie.resultados(numberPage, cat));
+			if (page === numberPage) boton.classList.add('active');
+		}
+		this.agregar(boton);
+	},
+	crear: function(data, page) {
+		const totalPaginas = data.total_pages;
+		this.limpiar();
+		this.boton_pagina(page, 1);
+		if (page > this.limite + 1) this.boton_pagina('...');
+		const inicio = Math.max(2, page - Math.floor(this.limite / 2));
+		const fin = Math.min(totalPaginas - 1, inicio + this.limite - 1);
+		for (let i = inicio; i <= fin; i++) this.boton_pagina(page, i);
+		if (fin < totalPaginas - 1) this.boton_pagina('...');
+		this.boton_pagina(page, totalPaginas);
+	}
+}
+
+
+// INICIAMOS 
 const APPMovie = {
-	getMovies: async (action = 'discover/movie', page = 1) => {
-		const apiurl = await fetch(`${APIURLTMDB}/${action}?${APIPARAMSTMDB}&page=${page}`);
+	datos: {},
+	limpiar: function() {
+		moviesContent.innerHTML = '';
+	},
+	informacion: async function() {
+		let action = `${this.datos.type}/${this.datos.cat}`;
+		let pagina = '&page=' + this.datos.page;
+		const apiurl = await fetch(`${APIURLTMDB}/${action}?${APIPARAMSTMDB}${pagina}`);
 		return await apiurl.json();
 	},
-	start: async function(action = 'discover/movie', page = 1) {
-		getStarter(await APPMovie.getMovies(action, page))
+	inicio: async function(objeto) {
+		this.datos = objeto
+		this.agregar(await this.informacion());
 	},
-	mostrarResultados: async (page = 1) => {
-		const data = await APPMovie.getMovies('discover/movie', page)
-		APPMovie.crearFront(page, data);
+	resultados: function(page, cat) {
+		GetParams.URLEditParams(`?cat=${cat}&page=${page}`);
+		this.inicio({ 
+			type: 'discover', 
+			cat: cat,
+			page: page 
+		});
 	},
-	crearPaginacion: (data, paginaActual) => {
-
-		let totalPaginas = data.total_pages;
-      const paginacionContainer = document.getElementById('paginacion');
-      const limiteBotones = 5; 
-      
-      paginacionContainer.innerHTML = ''; 
-    
-      const botonInicio = document.createElement('button');
-      botonInicio.textContent = '1';
-      botonInicio.addEventListener('click', () => APPMovie.mostrarResultados(1));
-      if (paginaActual === 1) botonInicio.classList.add('active');
-      paginacionContainer.appendChild(botonInicio);
-      // Agregar ... si la página actual es mayor que el límite de botones
-      if (paginaActual > limiteBotones + 1) {
-         const puntosInicio = document.createElement('span');
-         puntosInicio.textContent = '...';
-         paginacionContainer.appendChild(puntosInicio);
-      }
-      // Calcular el rango de botones a mostrar
-      const inicio = Math.max(2, paginaActual - Math.floor(limiteBotones / 2));
-      const fin = Math.min(totalPaginas - 1, inicio + limiteBotones - 1);
-      // Crear botones para las páginas
-      for (let i = inicio; i <= fin; i++) {
-         const boton = document.createElement('button');
-         boton.textContent = i;
-         boton.addEventListener('click', () => APPMovie.mostrarResultados(i));
-         if (i === paginaActual) boton.classList.add('active');
-         paginacionContainer.appendChild(boton);
-      }
-      // Agregar ... si hay más páginas después del rango de botones
-      if (fin < totalPaginas - 1) {
-         const puntosFinal = document.createElement('span');
-         puntosFinal.textContent = '...';
-         paginacionContainer.appendChild(puntosFinal);
-      }
-      // Botón para la última página
-      const botonFinal = document.createElement('button');
-      botonFinal.textContent = totalPaginas;
-      botonFinal.addEventListener('click', () => APPMovie.mostrarResultados(totalPaginas));
-      if (paginaActual === totalPaginas) botonFinal.classList.add('active');
-      paginacionContainer.appendChild(botonFinal);
-   },
-   crearFront: (page, data) => {
+	agregar: function(data) {
    	// Recorremos las peliculas
-   	moviesContent.innerHTML = '';
+   	this.limpiar();
+		moviesContent.classList.add('grid')
 		data.results.map( movie => {
 			// Obtenemos valores que usaremos
-			const { backdrop_path, poster_path, id, overview, title, vote_average } = movie
+			const { poster_path, id, overview, title, vote_average } = movie
 			const small = `https://image.tmdb.org/t/p/${poster_sizes[0]}${poster_path}`;
 			const big = `https://image.tmdb.org/t/p/${poster_sizes[5]}${poster_path}`;
-
 			const template = document.getElementById('templateMovie').content;
 			// Clonamos lo que esta dentro de <template>...
 			const clone = template.cloneNode(true).querySelector('.movie');
-
 			clone.setAttribute('id', 'movie-' + id);
-
-			clone.querySelector('.poster').setAttribute('data-src', big);
-			clone.querySelector('.poster').setAttribute('src', small);
-			clone.querySelector('.poster').setAttribute('alt', title);
-
+			this.image(clone, {
+				clase: '.poster',
+				attr: ['data-src', 'src', 'alt'],
+				val: [big, small, title]
+			})
 			clone.querySelector('h3').textContent = title;
-			clone.querySelector('.vote_average').textContent = APPMovie.newVal(vote_average);
-			clone.querySelector('.vote_average').className += ' ' + APPMovie.vote(vote_average);
-
+			// Votos
+			this.votos(clone, vote_average)
 			const overviewdiv = clone.querySelector('.overview')
 			overviewdiv.querySelector('p').textContent = overview;
-			
 			moviesContent.appendChild(clone);
 		})
-		APPMovie.paramPage(page);
-		APPMovie.crearPaginacion(data, page);
-		APPMovie.LazyLoad();
-   },
-   LazyLoad: () => {
+		let page = GetParams.URLSearch('pagina');
+		Paginador.crear(data, page);
+		this.LazyLoad();
+	},
+	image: function(element, object) {
+		object.attr.forEach( (attr, index) => {
+			element.querySelector(object.clase).setAttribute(object.attr[index], object.val[index]);
+		})
+	},
+	votos: function(element, vote_average) {
+   	const patron = /\d+\.\d{1}/g;
+   	const texto = vote_average.toString().match(patron);
+		let number = Math.ceil(texto);
+   	let clase = (number >= 8) ? "green" : (number >= 5 ? "orange" : "red");
+		element.querySelector('.vote_average').textContent = texto;
+		element.querySelector('.vote_average').classList.add(clase);
+	},
+   LazyLoad: function() {
    	let NewOptions = {
 	      elements_selector: '.poster',
 	      use_native: true,
-	      class_loading: 'lazy-loading'
+	      class_loading: 'lazy-loading',
+         callback_error: callback => {
+			   callback.setAttribute("src", "https://aramar.com/wp-content/uploads/2017/05/aramar-suministros-para-el-vidrio-cristal-sin-imagen-disponible.jpg");
+			}
 	   }
 	  	new LazyLoad(NewOptions)
-   },
-   paramPageSearch: () => {
-   	const searchParam = new URLSearchParams(window.location.search);
-   	const paginaActual = searchParam.get('page');
-   	const numeroPagina = paginaActual ? parseInt(paginaActual) : 1;
-   	return numeroPagina
-   },
-   paramPage: (nuevaPagina) => {
-   	const nuevaURL = window.location.origin + window.location.pathname + '?page=' + nuevaPagina;
-   	history.pushState(null, null, nuevaURL);
-   },
-	newVal: vote_average => {
-   	const patron = /\d+\.\d{1}/g;
-   	const texto = vote_average.toString();
-   	return texto.match(patron);
-	},
-	vote: vote => {
-		let number = Math.ceil(APPMovie.newVal(vote));
-   	return (number >= 8) ? "green" : (number >= 5 ? "orange" : "red");
    }
 }
 
-function getStarter( movies ) {
-	APPMovie.crearFront(movies.page, movies);
+let page = GetParams.URLSearch('pagina');
+let cat = GetParams.URLSearch('cat') || 'movie';
+APPMovie.inicio({
+	type: 'discover',
+	cat: cat,
+	page: page 
+});
+
+function quitarClase(filtros) {
+	filtros.forEach(f => f.classList.remove('active'));
 }
 
-APPMovie.start('discover/movie', APPMovie.paramPageSearch());
+const filtros = document.querySelectorAll('.filtro');
+quitarClase(filtros);
+
+filtros.forEach( function(filtro) {
+	// Quitamos todos las clases '.active'
+	let movietv = filtro.getAttribute('data-filter');
+	if(GetParams.URLSearch('cat') === movietv) {
+		filtro.classList.add('active');
+	}
+	filtro.addEventListener('click', function() {
+		quitarClase(filtros)
+		// Le añadimos la clase '.active' al que corresonde
+		filtro.classList.add('active');
+		// Obtener la página actual
+		let page = GetParams.URLSearch('pagina');
+		GetParams.URLEditParams(`?cat=${movietv}&page=${page}`);
+		APPMovie.inicio({ 
+			type: 'discover',
+			cat: movietv, 
+			page: page 
+		});
+	})
+})
